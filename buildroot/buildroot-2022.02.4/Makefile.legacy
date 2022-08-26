@@ -6,7 +6,7 @@
 # here that issues an error when the old feature is used.
 
 ifeq ($(BR2_LEGACY),y)
-$(error "You have legacy configuration in your .config! Please check your configuration.")
+#$(error "You have legacy configuration in your .config! Please check your configuration.")
 endif
 
 #
