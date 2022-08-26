@@ -11,6 +11,21 @@
 #include <asm/arch/s3c24x0_cpu.h>
 #include <asm/io.h>
 
+#if defined(__MINI2440_PERSONALIZED__)
+#define	NF_BASE		0x4e000000
+#define S3C2410_NFCONT_EN          (1<<0)
+#define S3C2410_NFCONT_INITECC     (1<<4)
+#define S3C2410_NFCONT_nFCE        (1<<1)
+#define S3C2410_NFCONT_MAINECCLOCK (1<<5)
+#define S3C2410_NFCONF_TACLS(x)    ((x)<<12)
+#define S3C2410_NFCONF_TWRPH0(x)   ((x)<<8)
+#define S3C2410_NFCONF_TWRPH1(x)   ((x)<<4)
+
+#define S3C2410_ADDR_NALE 0x08
+#define S3C2410_ADDR_NCLE 0x0c
+
+ulong IO_ADDR_W = NF_BASE;
+#else
 #define S3C2410_NFCONF_EN          (1<<15)
 #define S3C2410_NFCONF_512BYTE     (1<<14)
 #define S3C2410_NFCONF_4STEP       (1<<13)
@@ -22,6 +37,7 @@
 
 #define S3C2410_ADDR_NALE 4
 #define S3C2410_ADDR_NCLE 8
+#endif
 
 #ifdef CONFIG_NAND_SPL
 
@@ -40,19 +56,26 @@ static void nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
 
 static void s3c24x0_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
+#if !defined(__MINI2440_PERSONALIZED__)
 	struct nand_chip *chip = mtd_to_nand(mtd);
+#endif
 	struct s3c24x0_nand *nand = s3c24x0_get_base_nand();
 
 	debug("hwcontrol(): 0x%02x 0x%02x\n", cmd, ctrl);
 
 	if (ctrl & NAND_CTRL_CHANGE) {
+#if defined(__MINI2440_PERSONALIZED__)
+		IO_ADDR_W = (ulong)nand;
+#else
 		ulong IO_ADDR_W = (ulong)nand;
+#endif
 
 		if (!(ctrl & NAND_CLE))
 			IO_ADDR_W |= S3C2410_ADDR_NCLE;
 		if (!(ctrl & NAND_ALE))
 			IO_ADDR_W |= S3C2410_ADDR_NALE;
 
+#if !defined(__MINI2440_PERSONALIZED__)
 		chip->IO_ADDR_W = (void *)IO_ADDR_W;
 
 		if (ctrl & NAND_NCE)
@@ -62,9 +85,23 @@ static void s3c24x0_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 			writel(readl(&nand->nfconf) | S3C2410_NFCONF_nFCE,
 			       &nand->nfconf);
 	}
+#else
+		if (ctrl & NAND_NCE)
+			writel(readl(&nand->nfcont) & ~S3C2410_NFCONT_nFCE,
+			       &nand->nfcont);
+		else
+			writel(readl(&nand->nfcont) | S3C2410_NFCONT_nFCE,
+			       &nand->nfcont);
+	}
+#endif
 
+#if defined(__MINI2440_PERSONALIZED__)
+	if (cmd != NAND_CMD_NONE)
+		writeb(cmd, (void *)IO_ADDR_W);
+#else
 	if (cmd != NAND_CMD_NONE)
 		writeb(cmd, chip->IO_ADDR_W);
+#endif
 }
 
 static int s3c24x0_dev_ready(struct mtd_info *mtd)
@@ -79,7 +116,11 @@ void s3c24x0_nand_enable_hwecc(struct mtd_info *mtd, int mode)
 {
 	struct s3c24x0_nand *nand = s3c24x0_get_base_nand();
 	debug("s3c24x0_nand_enable_hwecc(%p, %d)\n", mtd, mode);
+#if defined(__MINI2440_PERSONALIZED__)
+	writel(readl(&nand->nfcont) | S3C2410_NFCONT_INITECC, &nand->nfcont);
+#else
 	writel(readl(&nand->nfconf) | S3C2410_NFCONF_INITECC, &nand->nfconf);
+#endif
 }
 
 static int s3c24x0_nand_calculate_ecc(struct mtd_info *mtd, const u_char *dat,
@@ -125,16 +166,31 @@ int board_nand_init(struct nand_chip *nand)
 	twrph0 = CONFIG_S3C24XX_TWRPH0;
 	twrph1 =  CONFIG_S3C24XX_TWRPH1;
 #else
+#if defined(__MINI2440_PERSONALIZED__)
+	tacls = 2;
+	twrph0 = 3;
+	twrph1 = 2;
+#else
 	tacls = 4;
 	twrph0 = 8;
 	twrph1 = 8;
 #endif
+#endif
 
+#if defined(__MINI2440_PERSONALIZED__)
+	cfg = 0;
+#else
 	cfg = S3C2410_NFCONF_EN;
+#endif
 	cfg |= S3C2410_NFCONF_TACLS(tacls - 1);
 	cfg |= S3C2410_NFCONF_TWRPH0(twrph0 - 1);
 	cfg |= S3C2410_NFCONF_TWRPH1(twrph1 - 1);
 	writel(cfg, &nand_reg->nfconf);
+
+#if defined(__MINI2440_PERSONALIZED__)
+	cfg = (0<<13)|(0<<12)|(0<<10)|(0<<9)|(0<<8)|(0<<6)|(0<<5)|(1<<4)|(0<<1)|(1<<0);
+	writel(cfg, &nand_reg->nfcont);
+#endif
 
 	/* initialize nand_chip data structure */
 	nand->IO_ADDR_R = (void *)&nand_reg->nfdata;

@@ -6,6 +6,8 @@
 #
 
 extra-y	= start.o
+obj-$(CONFIG_MINI2440)	+= lowlevel_init.o
+obj-$(CONFIG_MINI2440)	+= nand_read.o
 
 obj-y	+= cpu.o
 obj-$(CONFIG_USE_IRQ)	+= interrupts.o

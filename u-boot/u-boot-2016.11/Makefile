@@ -246,6 +246,9 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
 
+ARCH ?= arm
+CROSS_COMPILE ?= /arm-mini2440-linux-gnueabi_sdk-buildroot/bin/arm-mini2440-linux-gnueabi-
+
 KCONFIG_CONFIG	?= .config
 export KCONFIG_CONFIG
 
@@ -355,11 +358,12 @@ CHECK		= sparse
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void -D__CHECK_ENDIAN__ $(CF)
 
-KBUILD_CPPFLAGS := -D__KERNEL__ -D__UBOOT__
+KBUILD_CPPFLAGS := -D__KERNEL__ -D__UBOOT__ -D__MINI2440_PERSONALIZED__
 
 KBUILD_CFLAGS   := -Wall -Wstrict-prototypes \
 		   -Wno-format-security \
-		   -fno-builtin -ffreestanding
+		   -fno-builtin -ffreestanding \
+		   -D__MINI2440_PERSONALIZED__
 KBUILD_AFLAGS   := -D__ASSEMBLY__
 
 # Read UBOOTRELEASE from include/config/uboot.release (if it exists)

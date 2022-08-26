@@ -367,10 +367,16 @@ static int dm9000_init(struct eth_device *dev, bd_t *bd)
 	while (!(dm9000_phy_read(1) & 0x20)) {	/* autonegation complete bit */
 		udelay(1000);
 		i++;
+#if defined(__MINI2440_PERSONALIZED__)
+		if (i == 1000) {
+			break;
+		}
+#else
 		if (i == 10000) {
 			printf("could not establish link\n");
 			return 0;
 		}
+#endif
 	}
 
 	/* see what we've got */
