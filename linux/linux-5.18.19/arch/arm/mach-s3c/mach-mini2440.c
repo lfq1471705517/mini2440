@@ -300,10 +300,11 @@ static struct mtd_partition mini2440_default_nand_part[] __initdata = {
 #endif
 	},
 	[3] = {
-		.name	= "root",
 #if defined(__MINI2440_PERSONALIZED__)
+		.name	= "rootfs",
 		.offset	= SZ_1M + SZ_1M + 0x00500000,
 #else
+		.name	= "root",
 		.offset	= SZ_256K + SZ_128K + 0x00500000,
 #endif
 		.size	= MTDPART_SIZ_FULL,
