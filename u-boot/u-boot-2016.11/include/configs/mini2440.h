@@ -241,7 +241,7 @@
 #define MTDPARTS_DEFAULT "mtdparts=nandflash0:1m(u-boot)," \
 					     "1m(u-boot-env)," \
 					     "5m(kernel)," \
-					     "-(root)"
+					     "-(rootfs)"
 
 /* 1MB */
 #define UBOOT_RELOCATE_COPY_SIZE	0x100000
