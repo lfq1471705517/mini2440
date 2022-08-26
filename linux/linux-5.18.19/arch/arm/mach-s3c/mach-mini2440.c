@@ -244,7 +244,11 @@ static struct s3c24xx_mci_pdata mini2440_mmc_cfg __initdata = {
 };
 
 static struct gpiod_lookup_table mini2440_mmc_gpio_table = {
+#if defined(__MINI2440_PERSONALIZED__)
+	.dev_id = "s3c2440-sdi",
+#else
 	.dev_id = "s3c2410-sdi",
+#endif
 	.table = {
 		/* Card detect S3C2410_GPG(8) */
 		GPIO_LOOKUP("GPIOG", 8, "cd", GPIO_ACTIVE_LOW),
@@ -266,13 +270,22 @@ static struct gpiod_lookup_table mini2440_mmc_gpio_table = {
 static struct mtd_partition mini2440_default_nand_part[] __initdata = {
 	[0] = {
 		.name	= "u-boot",
+#if defined(__MINI2440_PERSONALIZED__)
+		.size	= SZ_1M,
+#else
 		.size	= SZ_256K,
+#endif
 		.offset	= 0,
 	},
 	[1] = {
 		.name	= "u-boot-env",
+#if defined(__MINI2440_PERSONALIZED__)
+		.size	= SZ_1M,
+		.offset	= SZ_1M,
+#else
 		.size	= SZ_128K,
 		.offset	= SZ_256K,
+#endif
 	},
 	[2] = {
 		.name	= "kernel",
@@ -280,11 +293,19 @@ static struct mtd_partition mini2440_default_nand_part[] __initdata = {
 		 * or a uImage with a ramdisk attached
 		 */
 		.size	= 0x00500000,
+#if defined(__MINI2440_PERSONALIZED__)
+		.offset	= SZ_1M + SZ_1M,
+#else
 		.offset	= SZ_256K + SZ_128K,
+#endif
 	},
 	[3] = {
 		.name	= "root",
+#if defined(__MINI2440_PERSONALIZED__)
+		.offset	= SZ_1M + SZ_1M + 0x00500000,
+#else
 		.offset	= SZ_256K + SZ_128K + 0x00500000,
+#endif
 		.size	= MTDPART_SIZ_FULL,
 	},
 };
@@ -300,9 +321,15 @@ static struct s3c2410_nand_set mini2440_nand_sets[] __initdata = {
 };
 
 static struct s3c2410_platform_nand mini2440_nand_info __initdata = {
+#if defined(__MINI2440_PERSONALIZED__)
+	.tacls		= 20,
+	.twrph0		= 40,
+	.twrph1		= 30,
+#else
 	.tacls		= 0,
 	.twrph0		= 25,
 	.twrph1		= 15,
+#endif
 	.nr_sets	= ARRAY_SIZE(mini2440_nand_sets),
 	.sets		= mini2440_nand_sets,
 	.ignore_unset_ecc = 1,
@@ -411,7 +438,7 @@ static struct platform_device mini2440_button_device = {
 };
 
 /* LEDS */
-
+#if !defined(__MINI2440_PERSONALIZED__)
 static struct gpiod_lookup_table mini2440_led1_gpio_table = {
 	.dev_id = "s3c24xx_led.1",
 	.table = {
@@ -516,6 +543,7 @@ static struct platform_device mini2440_led_backlight = {
 		.platform_data	= &mini2440_led_backlight_pdata,
 	},
 };
+#endif
 
 /* AUDIO */
 
@@ -584,10 +612,12 @@ static struct platform_device *mini2440_devices[] __initdata = {
 	&s3c_device_rtc,
 	&s3c_device_usbgadget,
 	&mini2440_device_eth,
+#if !defined(__MINI2440_PERSONALIZED__)
 	&mini2440_led1,
 	&mini2440_led2,
 	&mini2440_led3,
 	&mini2440_led4,
+#endif
 	&mini2440_button_device,
 	&s3c_device_nand,
 	&s3c_device_sdi,
@@ -680,8 +710,10 @@ static void __init mini2440_parse_features(
 				pr_info("MINI2440: '%c' ignored, backlight already set\n",
 					f);
 			else {
+#if !defined(__MINI2440_PERSONALIZED__)
 				features->optional[features->count++] =
 						&mini2440_led_backlight;
+#endif
 			}
 			features->done |= FEATURE_BACKLIGHT;
 			break;
@@ -717,8 +749,10 @@ static void __init mini2440_init(void)
 	s3c_gpio_cfgpin(S3C2410_GPC(0), S3C2410_GPC0_LEND);
 
 	/* Turn the backlight early on */
+#if !defined(__MINI2440_PERSONALIZED__)
 	WARN_ON(gpio_request_one(S3C2410_GPG(4), GPIOF_OUT_INIT_HIGH, NULL));
 	gpio_free(S3C2410_GPG(4));
+#endif
 
 	/* remove pullup on optional PWM backlight -- unused on 3.5 and 7"s */
 	gpio_request_one(S3C2410_GPB(1), GPIOF_IN, NULL);
@@ -769,6 +803,7 @@ static void __init mini2440_init(void)
 	s3c_gpio_setpull(S3C2410_GPB(6), S3C_GPIO_PULL_NONE);
 	s3c_gpio_setpull(S3C2410_GPB(7), S3C_GPIO_PULL_NONE);
 	s3c_gpio_setpull(S3C2410_GPB(8), S3C_GPIO_PULL_NONE);
+#if !defined(__MINI2440_PERSONALIZED__)
 	s3c_gpio_setpull(S3C2410_GPG(4), S3C_GPIO_PULL_NONE);
 
 	/* Add lookups for the lines */
@@ -777,6 +812,7 @@ static void __init mini2440_init(void)
 	gpiod_add_lookup_table(&mini2440_led3_gpio_table);
 	gpiod_add_lookup_table(&mini2440_led4_gpio_table);
 	gpiod_add_lookup_table(&mini2440_backlight_gpio_table);
+#endif
 
 	platform_add_devices(mini2440_devices, ARRAY_SIZE(mini2440_devices));
 
