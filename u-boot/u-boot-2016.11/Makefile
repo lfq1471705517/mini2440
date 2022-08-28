@@ -246,9 +246,6 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
 
-ARCH ?= arm
-CROSS_COMPILE ?= /arm-mini2440-linux-gnueabi_sdk-buildroot/bin/arm-mini2440-linux-gnueabi-
-
 KCONFIG_CONFIG	?= .config
 export KCONFIG_CONFIG
 
