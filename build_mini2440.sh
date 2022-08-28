@@ -4,6 +4,8 @@ set -e
 
 OUTPUT_DIR=output/
 
+rm -rf output/*
+
 echo "-----------start compiling rootfs-----------"
 cd buildroot/buildroot-2022.02.4/
 ./build_mini2440_rootfs.sh
