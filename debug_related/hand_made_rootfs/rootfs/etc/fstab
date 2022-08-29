@@ -1,0 +1,5 @@
+#device mount-point type option dump fsck order
+proc /proc proc defaults 0 0
+none /tmp ramfs defaults 0 0
+sysfs /sys sysfs defaults 0 0
+mdev /dev ramfs defaults 0 0

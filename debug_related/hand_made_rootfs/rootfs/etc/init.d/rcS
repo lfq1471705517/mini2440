@@ -1,0 +1,10 @@
+#!/bin/sh
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+runlevel=S
+prevlevel=N
+umask 022
+export PATH runlevel prevlevel
+echo "----------munt all----------------"
+mount -a
+echo /sbin/mdev>/proc/sys/kernel/hotplug
+mdev -s
