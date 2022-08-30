@@ -19,6 +19,7 @@ serial wire:		 usb to 232 converter
 ### 1.2 how to build
 
 ```
+	And after this, you can burn testing_images directory's images with "1.3 how to burn".
 	In the top directory, you only need to execute command "./build_mini2440.sh". And then you will get all images in the output folder. As for the compiling environments, for me, I used Ubuntu 20.04 LTS version as debugging. If you meet any compiling problems, please use search engine to find the right solving ways and install dependent packages.
 ```
 
