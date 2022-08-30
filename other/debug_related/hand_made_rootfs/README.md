@@ -1,0 +1,1 @@
+Before operating rootfs.tar.gz, you must switch to root user.
