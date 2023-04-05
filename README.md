@@ -2,11 +2,7 @@
   Linux bsp about mini2440 board, including u-boot, linux, rootfs. They just implement basic functions. The following are boards and software 
 information.
 
-
-
-## 1. mini2440
-
-### 1.1 hardware introducitons
+## 1. hardware introducitons
 
 ```
 board:			friendlyarm mini2440
@@ -17,7 +13,7 @@ sd card:		16GB
 serial wire:		usb to 232 converter
 ```
 
-### 1.2 how to build
+## 2. how to build
 
 ```
   And after this, you can burn released_images directory's images with "1.3 how to burn".
@@ -25,7 +21,7 @@ serial wire:		usb to 232 converter
 compiling environments, for me, I used Ubuntu 20.04 LTS version as debugging. If you meet any compiling problems, please use search engine to find the right solving ways and install dependent packages.
 ```
 
-### 1.3 how to burn
+## 3. how to burn
 
 ```
   First, you need to burn Superboot2440.bin into the nor flash through jlink. And second, use MiniTools software to burn u-boot.bin into nand flash. 
